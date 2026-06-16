@@ -1,7 +1,17 @@
+
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import type { AuditResult } from "@/types"
 import { inr } from "@/lib/audit"
+
+import jsPDF from "jspdf"
+import html2canvas from "html2canvas"
+
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+} from "@clerk/nextjs"
 
 interface Props {
   params: { slug: string }
@@ -152,6 +162,83 @@ export default async function ReportPage({ params }: Props) {
         <div className="bg-surface border border-l-4 border-blue-dim rounded-lg p-5">
           <div className="text-[9px] text-blue font-mono uppercase tracking-widest mb-2">// spendlens AI analysis</div>
           <div className="text-sm text-muted leading-relaxed">{audit.aiSummary}</div>
+        </div>
+
+        {/* Share Actions */}
+        <div className="bg-surface border border-border rounded-lg p-5">
+          <div className="text-sm font-semibold mb-2">
+            Share or download your report
+          </div>
+
+          <SignedOut>
+            <div className="space-y-3">
+              <p className="text-xs text-muted">
+                Sign in to share reports, download PDFs, and save audit history.
+              </p>
+
+              <SignInButton mode="modal">
+                <button className="bg-blue-dim hover:bg-blue text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors">
+                  Sign In to Continue
+                </button>
+              </SignInButton>
+            </div>
+          </SignedOut>
+
+          <SignedIn>
+  <div className="flex gap-3">
+    <button
+      onClick={() => {
+        if (navigator.share) {
+          navigator.share({
+            title: "SpendLens AI Audit Report",
+            text: "Check out this AI spend audit report",
+            url: window.location.href,
+          })
+        } else {
+          navigator.clipboard.writeText(window.location.href)
+          alert("Report link copied!")
+        }
+      }}
+      className="bg-blue-dim hover:bg-blue text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
+    >
+      Share Report
+    </button>
+
+    <button
+  onClick={async () => {
+    const element = document.body
+
+    const canvas = await html2canvas(element)
+
+    const data = canvas.toDataURL("image/png")
+
+    const pdf = new jsPDF("p", "mm", "a4")
+
+    const imgWidth = 210
+    const pageHeight = 295
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+    let heightLeft = imgHeight
+    let position = 0
+
+    pdf.addImage(data, "PNG", 0, position, imgWidth, imgHeight)
+    heightLeft -= pageHeight
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight
+      pdf.addPage()
+      pdf.addImage(data, "PNG", 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+    }
+
+    pdf.save("spendlens-report.pdf")
+  }}
+  className="border border-border hover:border-blue-dim text-sm font-semibold px-4 py-2 rounded-md transition-colors"
+>
+  Download PDF
+</button>
+  </div>
+</SignedIn>
         </div>
 
         {/* Footer CTA */}

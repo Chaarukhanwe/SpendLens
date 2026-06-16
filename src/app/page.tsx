@@ -1,8 +1,31 @@
 import Link from "next/link"
 
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/nextjs"
+
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative overflow-hidden">
+
+      {/* Auth Buttons */}
+      <div className="absolute top-6 right-6 z-20">
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button className="bg-blue-dim hover:bg-blue text-white px-4 py-2 rounded-md text-sm transition-colors">
+              Sign In
+            </button>
+          </SignInButton>
+        </SignedOut>
+
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </div>
+
       {/* Grid background */}
       <div className="absolute inset-0 bg-grid opacity-25 pointer-events-none" />
 
@@ -52,20 +75,43 @@ export default function Home() {
         {/* How it works */}
         <div className="mt-16 grid grid-cols-3 gap-6 text-left w-full">
           {[
-            { step: "01", title: "Add your tools", desc: "Tell us what AI tools your team pays for." },
-            { step: "02", title: "We find the waste", desc: "We detect overlaps, unused seats, and bad plans." },
-            { step: "03", title: "Get your verdict", desc: "Cut what's wasteful. Invest where it matters." },
+            {
+              step: "01",
+              title: "Add your tools",
+              desc: "Tell us what AI tools your team pays for.",
+            },
+            {
+              step: "02",
+              title: "We find the waste",
+              desc: "We detect overlaps, unused seats, and bad plans.",
+            },
+            {
+              step: "03",
+              title: "Get your verdict",
+              desc: "Cut what's wasteful. Invest where it matters.",
+            },
           ].map((s) => (
             <div
               key={s.step}
               className="bg-surface border border-border rounded-lg p-4"
             >
-              <div className="text-xs text-blue font-mono mb-2">{s.step}</div>
-              <div className="text-sm font-semibold mb-1">{s.title}</div>
-              <div className="text-xs text-muted leading-relaxed">{s.desc}</div>
+              <div className="text-xs text-blue font-mono mb-2">
+                {s.step}
+              </div>
+              <div className="text-sm font-semibold mb-1">
+                {s.title}
+              </div>
+              <div className="text-xs text-muted leading-relaxed">
+                {s.desc}
+              </div>
             </div>
           ))}
         </div>
+
+        {/* Footer */}
+        <p className="mt-10 text-xs text-dimmer font-mono">
+          Built with Next.js · Supabase · Clerk · Groq
+        </p>
       </div>
     </main>
   )

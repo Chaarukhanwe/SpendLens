@@ -4,10 +4,13 @@ import { runAuditSchema } from "@/lib/schemas"
 import { calcToolResult, generateRecs, generateVerdict } from "@/lib/audit"
 import { generateAISummary } from "@/lib/claude"
 import type { AuditResult } from "@/types"
+import { auth } from "@clerk/nextjs/server" 
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
+
+     
 
     // Honeypot check
     if (body.honeypot) {
@@ -81,11 +84,12 @@ export async function POST(req: NextRequest) {
           auth: { persistSession: false },
         })
         await supabase.from("audits").insert({
-          id: auditId,
-          result: audit,
-          email: email || null,
-          share_slug: shareSlug,
-        })
+  id: auditId,
+  result: audit,
+  email: email || null,
+  share_slug: shareSlug,
+  user_id: userId || null,
+})
       } else {
         console.warn("Supabase env vars missing — skipping DB save")
       }
